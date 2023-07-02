@@ -197,7 +197,7 @@ def main():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    main()
+                    sys.exit()
 
         # Filling bg
         DISPLAY.fill((231, 205, 183))
@@ -214,20 +214,26 @@ def main():
 
 
     # Levels selector screen
-    Y = 100
+    aling = 200
+    fromScreen = 100
     lvlSelectorScreen = True
     while lvlSelectorScreen:
+        global lvl
         dt = time.time() - last_time
         dt *= 60
         last_time = time.time()
+        mouseX, mouseY = pygame.mouse.get_pos()
+        clicked = False
 
         for event in pygame.event.get():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                clicked = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    pass
+                    sys.exit()
 
 
 
@@ -245,9 +251,18 @@ def main():
             # Title of button
             Message = font_small.render(str(i), True, (0, 0, 0))
             # Button
-            DISPLAY.blit(retry_button, (Y * i, DISPLAY.get_height() / 2 - retry_button.get_height()))
+            DISPLAY.blit(retry_button, (DISPLAY.get_width() / 2 + (aling * i - aling) - 2 * aling - retry_button.get_width() / 2, DISPLAY.get_height() / 2 - retry_button.get_height() / 2))
             # Rendering title of button
-            DISPLAY.blit(Message, (Y * i + 4, DISPLAY.get_height() / 2 - Message.get_height() / 2))
+            DISPLAY.blit(Message, (DISPLAY.get_width() / 2 + (aling * i - aling - 6) - 2 * aling, DISPLAY.get_height() / 2 - Message.get_height() / 2))
+
+            if (clicked and checkCollisions(mouseX, mouseY, 3, 3,
+                                            DISPLAY.get_width() / 2 + (aling * i - aling) - 2 * aling - retry_button.get_width() / 2,
+                                            DISPLAY.get_height() / 2 - retry_button.get_height() / 2,
+                                            retry_button.get_width(), retry_button.get_height())):
+                clicked = False
+                lvlSelectorScreen = False
+                print(i)
+                lvl = i
 
 
         pygame.display.update()
@@ -274,7 +289,7 @@ def main():
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    main()
+                    sys.exit()
 
 
         DISPLAY.fill((152, 251, 152))
