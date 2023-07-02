@@ -7,12 +7,14 @@ from button import Button
 #from bean import Bean
 #from utils import clamp
 from utils import checkCollisions
+import numpy as np
 
 
 loading = False
 
 
 def main():
+    global game_map
     pygame.init()
     w = 2160
     h = 1440
@@ -269,6 +271,9 @@ def main():
         pygame.display.update()
         pygame.time.delay(10)
 
+    lvl_file = "data/lvls/" + str(lvl) + ".txt"
+    game_map = np.loadtxt(lvl_file, skiprows=1, dtype='str')
+    print(game_map)
 
     # Main game screen
     manager = pygame_gui.UIManager((800, 600))
@@ -307,8 +312,22 @@ def main():
         manager.update(time_delta)
 
         DISPLAY.fill((152, 251, 152))
+
+        for layer in game_map:
+            x = 0
+            for tile in layer:
+                if tile == '1':
+                    display.blit(grass_img, (x * 16 - scroll[0], y * 16 - scroll[1]))
+                if tile == '2':
+                    display.blit(dirt_img, (x * 16 - scroll[0], y * 16 - scroll[1]))
+                if tile != '0':
+                    tile_rect.append(pygame.Rect(x * 16, y * 16, 16, 16))
+                x += 1
+            y += 1
+
         DISPLAY.blit(cmd, (0, 0))
         manager.draw_ui(DISPLAY)
+
 
         pygame.display.update()
 
