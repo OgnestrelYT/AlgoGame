@@ -31,6 +31,10 @@ def main():
     shop_bg = pygame.image.load('data/gfx/shop_bg.png')
     retry_button = pygame.image.load('data/gfx/retry_button.png')
     logo = pygame.image.load('data/gfx/logo.png')
+
+    grass = pygame.image.load('data/gfx/grass.png')
+    stone = pygame.image.load('data/gfx/stone.png')
+
     title_bg = pygame.image.load('data/gfx/bg.png')
     shadow = pygame.image.load('data/gfx/shadow.png')
     # get sounds
@@ -272,7 +276,11 @@ def main():
         pygame.time.delay(10)
 
     lvl_file = "data/lvls/" + str(lvl) + ".txt"
-    game_map = np.loadtxt(lvl_file, skiprows=1, dtype='str')
+    with open(lvl_file) as file:
+        for line in file:
+            for tip in line:
+                game_map = tip.split(" ")
+
     print(game_map)
 
     # Main game screen
@@ -313,21 +321,19 @@ def main():
 
         DISPLAY.fill((152, 251, 152))
 
+        tile_rect = []
+        y = 0
         for layer in game_map:
             x = 0
             for tile in layer:
                 if tile == '1':
-                    display.blit(grass_img, (x * 16 - scroll[0], y * 16 - scroll[1]))
+                    DISPLAY.blit(grass, (x * 150 + 700, y * 150 + 50))
                 if tile == '2':
-                    display.blit(dirt_img, (x * 16 - scroll[0], y * 16 - scroll[1]))
-                if tile != '0':
-                    tile_rect.append(pygame.Rect(x * 16, y * 16, 16, 16))
+                    DISPLAY.blit(stone, (x * 150 + 700, y * 150 + 50))
                 x += 1
             y += 1
 
         DISPLAY.blit(cmd, (0, 0))
-        manager.draw_ui(DISPLAY)
-
 
         pygame.display.update()
 
