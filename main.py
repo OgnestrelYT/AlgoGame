@@ -1,4 +1,4 @@
-import pygame, sys, time, random, colorsys, math, tkinter
+import pygame, sys, time, random, colorsys, math, tkinter, pygame_gui
 from pygame.math import Vector2
 from pygame.locals import *
 #from player import Player
@@ -54,6 +54,7 @@ def main():
     buttons[1].price = 5
     buttons[2].typeIndicatorSprite = pygame.image.load('data/gfx/beanup_indicator.png')
     buttons[2].price = 30
+    clock = pygame.time.Clock()
     # getting 5 beans
 #    for i in range(5): beans.append(Bean())
     # now looping through the beans list
@@ -270,10 +271,17 @@ def main():
 
 
     # Main game screen
+    manager = pygame_gui.UIManager((800, 600))
+
+    dialog_box = pygame_gui.elements.UITextEntryBox(relative_rect=pygame.Rect((-1, 20), (600, 300)),
+                                                    manager=manager)
+    dialog_box.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
+
     bRetry = (100, DISPLAY.get_height())
     while True:
         dt = time.time() - last_time
         dt *= 60
+        time_delta = clock.tick(60) / 1000
         last_time = time.time()
         # Getting mouse positions
         mouseX, mouseY = pygame.mouse.get_pos()
@@ -287,44 +295,22 @@ def main():
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
+            elif event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
+                print("Changed text:", event.text)
+            elif event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
+                print("Entered text:", event.text)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
 
+        manager.process_events(event)
+        manager.update(time_delta)
 
         DISPLAY.fill((152, 251, 152))
         DISPLAY.blit(cmd, (0, 0))
-
-        if dead:
-            DISPLAY.blit(retry_button, bRetry)
-            deathMessage = font_small.render("RETRY", True, (0, 0, 0))
-            DISPLAY.blit(deathMessage, (bRetry[0], bRetry[1] + 4))
-
-        if health <= 0 and not dead:
-            dead = True
-            pygame.mixer.Sound.play(deadfx)
-
-        if dead and clicked and checkCollisions(mouseX, mouseY, 3, 3, 4, 4, retry_button.get_width(),
-                                                retry_button.get_height()):
-#            player.position.xy = 295, 100
-            starsCount = 0
-            height = 0
-            flapForce = 3
-            beanMultiplier = 5
-            buttons = []
-
-            for i in range(3): buttons.append(Button())
-            buttons[0].typeIndicatorSprite = pygame.image.load('data/gfx/flap_indicator.png')
-            buttons[0].price = 5
-            buttons[1].typeIndicatorSprite = pygame.image.load('data/gfx/speed_indicator.png')
-            buttons[1].price = 5
-            buttons[2].typeIndicatorSprite = pygame.image.load('data/gfx/beanup_indicator.png')
-            buttons[2].price = 30
-            pygame.mixer.Sound.play(upgradefx)
-            dead = False
+        manager.draw_ui(DISPLAY)
 
         pygame.display.update()
-        pygame.time.delay(10)
 
 
 if __name__ == "__main__":
