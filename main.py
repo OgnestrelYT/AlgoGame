@@ -1,97 +1,118 @@
-import pygame, sys, time, random, colorsys, math, pygame_gui
+import pygame, sys, time, random, colorsys, math, pygame_gui, pygame_widgets
+from pygame_widgets.textbox import TextBox
 from pygame.locals import *
 from cor_check import *
+from inp_box import *
+from settings import *
+from saver import *
 from utils import checkCollisions
 
+loading = True
 
-loading = False
+pygame.init()
+w = 2160
+h = 1440
+DISPLAY = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
+pygame.display.set_caption('Algogame')
+
+programIcon = pygame.image.load('data/gfx/icon.png')
+pygame.display.set_icon(programIcon)
+
+# get fonts
+font = pygame.font.Font('data/fonts/font.otf', 100)
+font_small = pygame.font.Font('data/fonts/font.otf', 32)
+font_20 = pygame.font.Font('data/fonts/font.otf', 20)
+
+# get some images
+cmd = pygame.image.load('data/gfx/cmd.png')
+retry_button = pygame.image.load('data/gfx/retry_button.png')
+start_button = pygame.image.load('data/gfx/start_button.png')
+stop_button = pygame.image.load('data/gfx/stop_button.png')
+logo = pygame.image.load('data/gfx/logo.png')
+cor_cor = pygame.image.load('data/gfx/cor_cor.png')
+cor_incor = pygame.image.load('data/gfx/cor_incor.png')
+pl = pygame.image.load('data/gfx/player.png')
+
+# get sounds
+flapfx = pygame.mixer.Sound("data/sfx/flap.wav")
+upgradefx = pygame.mixer.Sound("data/sfx/upgrade.wav")
+beanfx = pygame.mixer.Sound("data/sfx/bean.wav")
+deadfx = pygame.mixer.Sound("data/sfx/dead.wav")
+
+cor = Cor()
+set = Settings()
+sav = Saver()
+gamm = GameMap()
+inp = Input()
+
+# colors
+WHITE = (255, 255, 255)  # constant
+clock = pygame.time.Clock()
 
 
-def main():
-    global game_map
-    pygame.init()
-    w = 2160
-    h = 1440
-    DISPLAY = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
-    pygame.display.set_caption('Algogame')
+framerate = 60
+ii = 1
+last_time = time.time()
+splashScreenTimer = 0
+settingScreen = False
+pygame.mixer.Sound.play(flapfx)
 
-    programIcon = pygame.image.load('data/gfx/icon.png')
-    pygame.display.set_icon(programIcon)
+#Loading screen
+if loading:
+    while splashScreenTimer < 100:
+        dt = time.time() - last_time
+        dt *= 60
+        last_time = time.time()
 
-    # get fonts
-    font = pygame.font.Font('data/fonts/font.otf', 100)
-    font_small = pygame.font.Font('data/fonts/font.otf', 32)
-    font_20 = pygame.font.Font('data/fonts/font.otf', 20)
+        splashScreenTimer += dt
 
-    # get some images
-    cmd = pygame.image.load('data/gfx/cmd.png')
-    retry_button = pygame.image.load('data/gfx/retry_button.png')
-    start_button = pygame.image.load('data/gfx/start_button.png')
-    stop_button = pygame.image.load('data/gfx/stop_button.png')
-    logo = pygame.image.load('data/gfx/logo.png')
-    cor_cor = pygame.image.load('data/gfx/cor_cor.png')
-    cor_incor = pygame.image.load('data/gfx/cor_incor.png')
-    pl = pygame.image.load('data/gfx/player.png')
+        for event in pygame.event.get():
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
 
-    grass = pygame.image.load('data/gfx/grass.png')
-    stone = pygame.image.load('data/gfx/stone.png')
+        set.settings_check()
 
-    # get sounds
-    flapfx = pygame.mixer.Sound("data/sfx/flap.wav")
-    upgradefx = pygame.mixer.Sound("data/sfx/upgrade.wav")
-    beanfx = pygame.mixer.Sound("data/sfx/bean.wav")
-    deadfx = pygame.mixer.Sound("data/sfx/dead.wav")
-
-    # colors
-    WHITE = (255, 255, 255)  # constant
-    clock = pygame.time.Clock()
-
-    dead = False
-    framerate = 60
-    last_time = time.time()
-    splashScreenTimer = 0
-    settingScreen = False
-    pygame.mixer.Sound.play(flapfx)
-
-    #Loading screen
-    if loading:
-        while splashScreenTimer < 100:
-            dt = time.time() - last_time
-            dt *= 60
-            last_time = time.time()
-
-            splashScreenTimer += dt
-
-            for event in pygame.event.get():
-                if event.type == QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-            # Filling bg
+        # Filling bg
+        if set.theme:
+            DISPLAY.fill((119, 136, 153))
+        else:
             DISPLAY.fill((231, 205, 183))
 
-            # Start massage
-            startMessage = font_small.render("AlgoGame", True, (171, 145, 123))
+        # Start massage
+        startMessage = font_small.render("AlgoGame", True, (139, 0, 0))
 
-            # Rendering start massage
-            DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2,
-                                        DISPLAY.get_height() / 2 - startMessage.get_height() / 2))
+        # Rendering start massage
+        DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2,
+                                    DISPLAY.get_height() / 2 - startMessage.get_height() / 2))
 
-            pygame.display.update()
-            pygame.time.delay(10)
+        pygame.display.update()
+        pygame.time.delay(10)
 
 
-    # Start screen with buttons
+# Start screen with buttons
+def title_screen():
+    def output():
+        global ii
+        textbox = TextBox(DISPLAY, 1, 100 + ii * 50, 658, 50, fontSize=40,
+                          borderColour=(0, 0, 0), textColour=(0, 200, 0),
+                          onSubmit=output, onTextChanged=edit, radius=10, borderThickness=0)
+        ii += 1
+
+    def edit():
+        sav.save_code(textbox.getText(), lvl)
+
+    settingScreen = False
+    last_time = time.time()
     titleScreen = True
     pygame.mixer.Sound.play(flapfx)
 
     # Y of start button
     bStart = 500
     # Y of settings button
-    bSettings = 560
+    bSettings = 600
     # Y of exit button
-    bExit = 620
-
+    bExit = 700
     while titleScreen:
         dt = time.time() - last_time
         dt *= 60
@@ -108,32 +129,15 @@ def main():
                 pygame.quit()
                 sys.exit()
 
-        # Button to play function
-        if (clicked and checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
-                                        bStart, retry_button.get_width(), retry_button.get_height())):
-            clicked = False
-            pygame.mixer.Sound.play(upgradefx)
-            titleScreen = False
-
-        # Button to settings function
-        if (clicked and checkCollisions(mouseX, mouseY, 3, 3,
-                                        DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
-                                        bSettings, retry_button.get_width(), retry_button.get_height())):
-            clicked = False
-            settingScreen = True
-            titleScreen = False
-
-        # Button to exit function
-        if (clicked and checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
-                                        bExit, retry_button.get_width(), retry_button.get_height())):
-            clicked = False
-            sys.exit()
+        set.settings_check()
 
         # Filling bg
-        DISPLAY.fill(WHITE)
-        DISPLAY.fill((255, 218, 185))
+        if set.theme:
+            DISPLAY.fill((105, 105, 105))
+        else:
+            DISPLAY.fill((255, 218, 185))
 
-        # Logon on screen
+        # Log on on screen
         DISPLAY.blit(logo, (DISPLAY.get_width() / 2 - logo.get_width() / 2,
                             DISPLAY.get_height() / 2 - 200 - logo.get_height() / 2 + math.sin(time.time() * 5) * 5 - 25))
 
@@ -158,39 +162,104 @@ def main():
         # Rendering title of exit button
         DISPLAY.blit(exitMessage, (DISPLAY.get_width() / 2 - exitMessage.get_width() / 2, bExit + 4))
 
+        # Button to play function
+        if (clicked and checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
+                                        bStart, retry_button.get_width(), retry_button.get_height())):
+            clicked = False
+            pygame.mixer.Sound.play(upgradefx)
+            titleScreen = False
+
+        # Button to settings function
+        if (clicked and checkCollisions(mouseX, mouseY, 3, 3,
+                                        DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
+                                        bSettings, retry_button.get_width(), retry_button.get_height())):
+            clicked = False
+            settingScreen = True
+            titleScreen = False
+
+        # Button to exit function
+        if (clicked and checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
+                                        bExit, retry_button.get_width(), retry_button.get_height())):
+            clicked = False
+            sys.exit()
+
         pygame.display.update()
         pygame.time.delay(10)
 
     # Settings screen
+    bTheme = 500
     while settingScreen:
         dt = time.time() - last_time
         dt *= 60
         last_time = time.time()
 
+        clicked = False
+
+        # Getting mouse positions
+        mouseX, mouseY = pygame.mouse.get_pos()
+
         for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                clicked = True
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    sys.exit()
+                    title_screen()
+
+        set.settings_check()
 
         # Filling bg
-        DISPLAY.fill((231, 205, 183))
+        if set.theme:
+            DISPLAY.fill((105, 105, 105))
+        else:
+            DISPLAY.fill((231, 205, 183))
 
-        # Start massage
-        startMessage = font_small.render("SOON...", True, (171, 145, 123))
+# ----------------------------------------------------------------------------------------------------------------------
 
-        # Rendering start massage
-        DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2,
-                                    DISPLAY.get_height() / 2 - startMessage.get_height() / 2))
+        # Theme massage
+        if set.theme:
+            themeMessageBB = font_small.render("Switch to", True, (0, 0, 0))
+            themeMessageOnB = font_small.render("light", True, (0, 0, 0))
+        else:
+            themeMessageBB = font_small.render("Switch to", True, (171, 145, 123))
+            themeMessageOnB = font_small.render("night", True, (171, 145, 123))
+
+        # Button theme
+        DISPLAY.blit(retry_button, (DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
+                                    bTheme))
+
+        # Rendering theme on button txt
+        DISPLAY.blit(themeMessageOnB, (DISPLAY.get_width() / 2 - retry_button.get_width() / 2 +
+                                       themeMessageOnB.get_width() / 2,
+                                       bTheme))
+
+        # Rendering theme before button txt
+        DISPLAY.blit(themeMessageBB, (DISPLAY.get_width() / 2 - retry_button.get_width() / 2 -
+                                       themeMessageBB.get_width() - 5,
+                                       bTheme))
+
+        # Button to switch theme
+        if (clicked and (checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
+                                         bTheme, retry_button.get_width(),
+                                         retry_button.get_height()))):
+            clicked = False
+            if set.theme:
+                set.edit(0, "light theme")
+            else:
+                set.edit(0, "night theme")
+            print("switch theme")
+
+# ----------------------------------------------------------------------------------------------------------------------
+
 
         pygame.display.update()
         pygame.time.delay(10)
 
 
     # Levels selector screen
-    aling = 200
+    aling = 350
     fromScreen = 100
     lvlSelectorScreen = True
     while lvlSelectorScreen:
@@ -209,12 +278,15 @@ def main():
                 clicked = True
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    sys.exit()
+                    title_screen()
 
-
+        set.settings_check()
 
         # Filling bg
-        DISPLAY.fill((231, 205, 183))
+        if set.theme:
+            DISPLAY.fill((105, 105, 105))
+        else:
+            DISPLAY.fill((231, 205, 183))
 
         # Start massage
         startMessage = font_small.render("SOON...", True, (171, 145, 123))
@@ -254,17 +326,11 @@ def main():
     print(game_map)
 
     # Main game screen
-    manager = pygame_gui.UIManager((800, 600))
 
-    dialog_box = pygame_gui.elements.UITextEntryBox(relative_rect=pygame.Rect((-1, 81), (658, 998)),
-                                                    manager=manager)
-    dialog_box.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
-
-    cor = Cor()
     text = ""
 
     y = 0
-    for layer in game_map:
+    for layer in game_map[0:11]:
         x = 0
         for tile in layer:
             if tile == "0":
@@ -275,6 +341,28 @@ def main():
             x += 1
         y += 1
 
+    string_no_1 = ""
+    string_no_2 = ""
+
+    try:
+        for layer in game_map[12]:
+            string_no_1 = str(layer)
+    except:
+        try:
+            for layer in game_map[13]:
+                string_no_2 = str(layer)
+        except:
+            pass
+
+    cor.pl(game_map)
+    print(game_map)
+
+    sav.enter_code(lvl)
+    print(sav.from_file_end)
+
+    textbox = TextBox(DISPLAY, 1, 100, 658, 50, fontSize=40,
+                      borderColour=(0, 0, 0), textColour=(0, 200, 0),
+                      onSubmit=output, onTextChanged=edit, radius=10, borderThickness=0)
 
     while True:
         dt = time.time() - last_time
@@ -287,36 +375,31 @@ def main():
 
         clicked = False
         keys = pygame.key.get_pressed()
+        events = pygame.event.get()
 
-        for event in pygame.event.get():
+        for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 clicked = True
             if event.type == QUIT:
                 pygame.quit()
                 sys.exit()
-            elif event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
-                print(event.text)
-                text = str(event.text)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
-                    sys.exit()
+                    title_screen()
 
-        manager.process_events(event)
-        manager.update(time_delta)
+        set.settings_check()
 
-        DISPLAY.fill((152, 251, 152))
+        # Filling bg
+        if set.theme:
+            DISPLAY.fill((47, 79, 79))
+        else:
+            DISPLAY.fill((152, 251, 152))
+
+        sav.enter_code(i)
+        print(sav.from_file_end)
+        text = sav.from_file_end
 
         tile_rect = []
-        y = 0
-        for layer in game_map:
-            x = 0
-            for tile in layer:
-                if tile == '1':
-                    DISPLAY.blit(grass, (x * 90 + 660, y * 90))
-                if tile == '2':
-                    DISPLAY.blit(stone, (x * 90 + 660, y * 90))
-                x += 1
-            y += 1
 
         DISPLAY.blit(cmd, (0, 0))
 
@@ -328,6 +411,8 @@ def main():
         else:
             DISPLAY.blit(cor_incor, (0, 0))
 
+        gamm.game_map(game_map, DISPLAY)
+
         # Button start
         DISPLAY.blit(start_button, (580, 0))
 
@@ -338,18 +423,20 @@ def main():
         if (clicked and (checkCollisions(mouseX, mouseY, 3, 3, 580, 0, start_button.get_width(),
                                         start_button.get_height()))):
             clicked = False
+            cor.bon_count = 0
             pygame.mixer.Sound.play(upgradefx)
             cor.x_pl = 0
             cor.y_pl = 0
             imp = text
             cor.pl(game_map)
-            cor.start(imp, game_map)
+            cor.start(imp, game_map, DISPLAY, pl, levelMessage, bonuseMessage)
             print(cor.x_pl, cor.y_pl)
 
         # Button to stop function
         if (clicked and checkCollisions(mouseX, mouseY, 3, 3, 500, 0, stop_button.get_width(),
                                         stop_button.get_height())):
             clicked = False
+            cor.bon_count = 0
             pygame.mixer.Sound.play(upgradefx)
             cor.conf = ""
             cor.flag_st = False
@@ -358,18 +445,24 @@ def main():
             cor.pl(game_map)
             print(cor.x_pl, cor.y_pl)
 
-
-        manager.draw_ui(DISPLAY)
-
         DISPLAY.blit(pl, (cor.x_pl * 90 + 660, cor.y_pl * 90))
 
         confMessage = font_small.render(cor.conf, True, (0, 0, 0))
 
-        DISPLAY.blit(confMessage, (5, 20))
+        bonuseMessage = font_small.render(str(cor.bon_count), True, (0, 0, 0))
 
+        levelMessage = font_small.render("Level " + str(lvl), True, (0, 0, 0))
+
+        string1 = font_small.render(string_no_1, True, (0, 0, 0))
+        string2 = font_small.render(string_no_2, True, (0, 0, 0))
+
+        DISPLAY.blit(bonuseMessage, (5, 1040))
+        DISPLAY.blit(levelMessage, (550, 1040))
+        DISPLAY.blit(confMessage, (5, 20))
+        DISPLAY.blit(string1, (10, 400))
+
+        pygame_widgets.update(events)
         pygame.display.update()
 
 
-if __name__ == "__main__":
-    loading = True
-    main()
+title_screen()
