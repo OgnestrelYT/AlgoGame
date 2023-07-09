@@ -320,9 +320,9 @@ def main():
 
         DISPLAY.blit(cmd, (0, 0))
 
-        cor.update(text)
+        cor.synt_check(text)
 
-        if (cor.flag):
+        if (cor.synt_er and cor.flag_st == False):
             cor.conf = ""
             DISPLAY.blit(cor_cor, (0, 0))
         else:
@@ -351,6 +351,8 @@ def main():
                                         stop_button.get_height())):
             clicked = False
             pygame.mixer.Sound.play(upgradefx)
+            cor.conf = ""
+            cor.flag_st = False
             cor.x_pl = 0
             cor.y_pl = 0
             cor.pl(game_map)
