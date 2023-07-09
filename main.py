@@ -1,13 +1,7 @@
-import pygame, sys, time, random, colorsys, math, tkinter, pygame_gui
-from pygame.math import Vector2
+import pygame, sys, time, random, colorsys, math, pygame_gui
 from pygame.locals import *
-#from player import Player
-from background import Background
-from button import Button
-#from bean import Bean
-#from utils import clamp
+from cor_check import *
 from utils import checkCollisions
-import numpy as np
 
 
 loading = False
@@ -19,70 +13,45 @@ def main():
     w = 2160
     h = 1440
     DISPLAY = pygame.display.set_mode((w, h), pygame.FULLSCREEN)
-    pygame.display.set_caption('Minecraft')
-#    pygame.display.set_icon(Bean().sprite)
+    pygame.display.set_caption('Algogame')
+
+    programIcon = pygame.image.load('data/gfx/icon.png')
+    pygame.display.set_icon(programIcon)
+
     # get fonts
     font = pygame.font.Font('data/fonts/font.otf', 100)
     font_small = pygame.font.Font('data/fonts/font.otf', 32)
     font_20 = pygame.font.Font('data/fonts/font.otf', 20)
+
     # get some images
-    shop = pygame.image.load('data/gfx/shop.png')
     cmd = pygame.image.load('data/gfx/cmd.png')
-    shop_bg = pygame.image.load('data/gfx/shop_bg.png')
     retry_button = pygame.image.load('data/gfx/retry_button.png')
+    start_button = pygame.image.load('data/gfx/start_button.png')
+    stop_button = pygame.image.load('data/gfx/stop_button.png')
     logo = pygame.image.load('data/gfx/logo.png')
+    cor_cor = pygame.image.load('data/gfx/cor_cor.png')
+    cor_incor = pygame.image.load('data/gfx/cor_incor.png')
+    pl = pygame.image.load('data/gfx/player.png')
 
     grass = pygame.image.load('data/gfx/grass.png')
     stone = pygame.image.load('data/gfx/stone.png')
 
-    title_bg = pygame.image.load('data/gfx/bg.png')
-    shadow = pygame.image.load('data/gfx/shadow.png')
     # get sounds
     flapfx = pygame.mixer.Sound("data/sfx/flap.wav")
     upgradefx = pygame.mixer.Sound("data/sfx/upgrade.wav")
     beanfx = pygame.mixer.Sound("data/sfx/bean.wav")
     deadfx = pygame.mixer.Sound("data/sfx/dead.wav")
+
     # colors
     WHITE = (255, 255, 255)  # constant
-    # variables
-    rotOffset = -5
-    # creating a new object player
-#    player = Player()
-    beans = []
-    buttons = []
-    # adding three buttons
-    for i in range(3):
-        buttons.append(Button())
-    # now simply loading images based off of indexes in the list
-    buttons[0].typeIndicatorSprite = pygame.image.load('data/gfx/flap_indicator.png')
-    buttons[0].price = 5
-    buttons[1].typeIndicatorSprite = pygame.image.load('data/gfx/speed_indicator.png')
-    buttons[1].price = 5
-    buttons[2].typeIndicatorSprite = pygame.image.load('data/gfx/beanup_indicator.png')
-    buttons[2].price = 30
     clock = pygame.time.Clock()
-    # getting 5 beans
-#    for i in range(5): beans.append(Bean())
-    # now looping through the beans list
-#    for bean in beans:
-#        bean.position.xy = random.randrange(0, DISPLAY.get_width() - bean.sprite.get_width()), beans.index(
-#            bean) * -200 - player.position.y
-    # creating a list of backgrounds, with each index being an object
-    bg = [Background(), Background(), Background()]
-    # some variables that we need
-    beanCount = 0
-#    startingHeight = player.position.y
-    height = 0
-    health = 100
-    flapForce = 3
-    beanMultiplier = 5
+
     dead = False
     framerate = 60
     last_time = time.time()
     splashScreenTimer = 0
     settingScreen = False
     pygame.mixer.Sound.play(flapfx)
-
 
     #Loading screen
     if loading:
@@ -275,27 +244,44 @@ def main():
         pygame.display.update()
         pygame.time.delay(10)
 
+    game_map = []
+
     lvl_file = "data/lvls/" + str(lvl) + ".txt"
     with open(lvl_file) as file:
-        for line in file:
-            for tip in line:
-                game_map = tip.split(" ")
+        for tip in file:
+            game_map.append(tip.split())
 
     print(game_map)
 
     # Main game screen
     manager = pygame_gui.UIManager((800, 600))
 
-    dialog_box = pygame_gui.elements.UITextEntryBox(relative_rect=pygame.Rect((-1, 20), (600, 300)),
+    dialog_box = pygame_gui.elements.UITextEntryBox(relative_rect=pygame.Rect((-1, 81), (658, 998)),
                                                     manager=manager)
     dialog_box.set_active_effect(pygame_gui.TEXT_EFFECT_TYPING_APPEAR)
 
-    bRetry = (100, DISPLAY.get_height())
+    cor = Cor()
+    text = ""
+
+    y = 0
+    for layer in game_map:
+        x = 0
+        for tile in layer:
+            if tile == "0":
+                cor.x_pl += 1
+                if cor.x_pl > 13:
+                    cor.y_pl += 1
+                    cor.x_pl = 0
+            x += 1
+        y += 1
+
+
     while True:
         dt = time.time() - last_time
         dt *= 60
         time_delta = clock.tick(60) / 1000
         last_time = time.time()
+
         # Getting mouse positions
         mouseX, mouseY = pygame.mouse.get_pos()
 
@@ -309,9 +295,8 @@ def main():
                 pygame.quit()
                 sys.exit()
             elif event.type == pygame_gui.UI_TEXT_ENTRY_CHANGED:
-                print("Changed text:", event.text)
-            elif event.type == pygame_gui.UI_TEXT_ENTRY_FINISHED:
-                print("Entered text:", event.text)
+                print(event.text)
+                text = str(event.text)
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     sys.exit()
@@ -327,13 +312,58 @@ def main():
             x = 0
             for tile in layer:
                 if tile == '1':
-                    DISPLAY.blit(grass, (x * 150 + 700, y * 150 + 50))
+                    DISPLAY.blit(grass, (x * 90 + 660, y * 90))
                 if tile == '2':
-                    DISPLAY.blit(stone, (x * 150 + 700, y * 150 + 50))
+                    DISPLAY.blit(stone, (x * 90 + 660, y * 90))
                 x += 1
             y += 1
 
         DISPLAY.blit(cmd, (0, 0))
+
+        cor.update(text)
+
+        if (cor.flag):
+            cor.conf = ""
+            DISPLAY.blit(cor_cor, (0, 0))
+        else:
+            DISPLAY.blit(cor_incor, (0, 0))
+
+        # Button start
+        DISPLAY.blit(start_button, (580, 0))
+
+        # Button stop
+        DISPLAY.blit(stop_button, (500, 0))
+
+        # Button to play function
+        if (clicked and (checkCollisions(mouseX, mouseY, 3, 3, 580, 0, start_button.get_width(),
+                                        start_button.get_height()))):
+            clicked = False
+            pygame.mixer.Sound.play(upgradefx)
+            cor.x_pl = 0
+            cor.y_pl = 0
+            imp = text
+            cor.pl(game_map)
+            cor.start(imp, game_map)
+            print(cor.x_pl, cor.y_pl)
+
+        # Button to stop function
+        if (clicked and checkCollisions(mouseX, mouseY, 3, 3, 500, 0, stop_button.get_width(),
+                                        stop_button.get_height())):
+            clicked = False
+            pygame.mixer.Sound.play(upgradefx)
+            cor.x_pl = 0
+            cor.y_pl = 0
+            cor.pl(game_map)
+            print(cor.x_pl, cor.y_pl)
+
+
+        manager.draw_ui(DISPLAY)
+
+        DISPLAY.blit(pl, (cor.x_pl * 90 + 660, cor.y_pl * 90))
+
+        confMessage = font_small.render(cor.conf, True, (0, 0, 0))
+
+        DISPLAY.blit(confMessage, (5, 20))
 
         pygame.display.update()
 
