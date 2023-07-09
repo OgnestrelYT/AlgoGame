@@ -1,12 +1,14 @@
 00 00 00 00 00 00 00 00 00 00 00 00 00 00
 00 00 00 00 00 00 00 00 00 00 00 00 00 00
-00 01 01 01 07 02 02 02 02 01 01 01 02 xx
-xx 01 01 01 07 02 02 02 01 01 02 02 02 xx
-xx 01 01 01 07 01 02 02 01 01 02 02 02 xx
-xx 01 11 06 08 01 01 02 01 01 01 02 02 xx
-xx 01 07 02 02 01 01 01 01 01 01 02 02 xx
-xx 01 07 02 02 01 02 01 01 01 01 02 02 xx
-xx 01 07 02 01 01 02 02 02 01 01 01 02 xx
-xx 04 07 01 01 02 02 02 02 02 02 01 05 xx
+00 00 00 00 00 00 00 00 00 00 00 00 00 00
+00 00 00 00 01 01 22 31 27 07 xx xx xx xx
+xx xx xx xx 21 01 01 22 23 07 xx xx xx xx
+xx xx xx xx 27 01 01 01 04 07 xx xx xx xx
+xx xx xx xx 23 01 01 01 01 09 xx xx xx xx
+xx xx xx xx 03 04 01 01 01 33 xx xx xx xx
+xx xx xx xx 03 03 01 01 04 51 xx xx xx xx
 xx xx xx xx xx xx xx xx xx xx xx xx xx xx
 xx xx xx xx xx xx xx xx xx xx xx xx xx xx
+xx xx xx xx xx xx xx xx xx xx xx xx xx xx
+Чтобы пройти уровень, собрав все
+звёздочки надо быть экономнее

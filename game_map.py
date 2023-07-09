@@ -18,17 +18,20 @@ class GameMap():
         self.stone_vogn_right_top = pygame.image.load('data/gfx/stone_vogn_right_top.png')
         self.stone_vogn_left_bottom = pygame.image.load('data/gfx/stone_vogn_left_bottom.png')
         self.stone_vogn_right_bottom = pygame.image.load('data/gfx/stone_vogn_right_bottom.png')
-        #self.stone_center = pygame.image.load('data/gfx/stone_center.png')
+        self.stone_center = pygame.image.load('data/gfx/stone.png')
 
-        self.top_left_riv = pygame.image.load('data/gfx/top_left.png')
-        self.top_right_riv = pygame.image.load('data/gfx/top_right.png')
-        self.bottom_left_riv = pygame.image.load('data/gfx/bottom_left.png')
-        self.bottom_right_riv = pygame.image.load('data/gfx/bottom_right.png')
+        self.top_left_riv = pygame.image.load('data/gfx/river_left_top.png')
+        self.top_right_riv = pygame.image.load('data/gfx/river_right_top.png')
+        self.bottom_left_riv = pygame.image.load('data/gfx/river_left_buttom.png')
+        self.bottom_right_riv = pygame.image.load('data/gfx/river_right_buttom.png')
         self.vert_riv = pygame.image.load('data/gfx/vert.png')
         self.goriz_riv = pygame.image.load('data/gfx/goriz.png')
-        self.finish = pygame.image.load('data/gfx/finish.png')
+        self.finish_hor = pygame.image.load('data/gfx/finish_hor.png')
+        self.finish_vert = pygame.image.load('data/gfx/finish_vert.png')
         self.tree = pygame.image.load('data/gfx/tree.png')
         self.bonuse = pygame.image.load('data/gfx/bonuse.png')
+        self.vert_most = pygame.image.load("data/gfx/bridge_vert.png")
+        self.goriz_most = pygame.image.load("data/gfx/bridge_hor.png")
 
     def game_map(self, game_map, DISPLAY):
         y = 0
@@ -71,8 +74,10 @@ class GameMap():
                     DISPLAY.blit(self.tree, (x * 90 + 660, y * 90))
                 elif tile == '04':  # Bonuse
                     DISPLAY.blit(self.bonuse, (x * 90 + 660, y * 90))
-                elif tile == '05':  # Finish
-                    DISPLAY.blit(self.finish, (x * 90 + 660, y * 90))
+                elif tile == '51':  # Finish vert
+                    DISPLAY.blit(self.finish_vert, (x * 90 + 660, y * 90))
+                elif tile == '52':  # Finish hor
+                    DISPLAY.blit(self.finish_hor, (x * 90 + 660, y * 90))
                 elif tile == '06':  # Gor river
                     DISPLAY.blit(self.goriz_riv, (x * 90 + 660, y * 90))
                 elif tile == '07':  # Vert river
@@ -85,5 +90,9 @@ class GameMap():
                     DISPLAY.blit(self.bottom_left_riv, (x * 90 + 660, y * 90))
                 elif tile == '11':  # Bottom right river
                     DISPLAY.blit(self.bottom_right_riv, (x * 90 + 660, y * 90))
+                elif tile == '12':  #
+                    DISPLAY.blit(self.vert_most, (x * 90 + 660, y * 90))
+                elif tile == '13':  #
+                    DISPLAY.blit(self.goriz_most, (x * 90 + 660, y * 90))
                 x += 1
             y += 1
