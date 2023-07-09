@@ -12,6 +12,7 @@ class Cor:
         self.conf = ""
         self.flag_st = False
         self.flag_bon = False
+        self.flag_col = False
         self.bon_count = 0
         self.dey = []
         self.bon_m = []
@@ -22,16 +23,27 @@ class Cor:
         inp.lower()
         a = inp.split("\n")
         for line in a:
-            if line == "вниз":
-                self.synt_er = True
-            elif line == "вверх":
-                self.synt_er = True
-            elif line == "влево":
-                self.synt_er = True
-            elif line == "вправо":
-                self.synt_er = True
+            line.split(" ")
+            if len(line) > 0:
+                if line == "вниз":
+                    self.synt_er = True
+                elif line == "вверх":
+                    self.synt_er = True
+                elif line == "влево":
+                    self.synt_er = True
+                elif line == "вправо":
+                    self.synt_er = True
+                elif (line[0] == "повторять") and ((int(line[1]) > 0) and (int(line[1])) < 20) and \
+                        ((line[2] == "раз") or (line[2] == "раза")) and \
+                        ((line[3] == "вниз") or (line[3] == "вверх") or \
+                        (line[3] == "влево") or (line[3] == "вправо")):
+                    self.synt_er = True
+                else:
+                    self.synt_er = False
             else:
                 self.synt_er = False
+        if self.flag_col:
+            self.conf = "Slishkom mnogo"
 
     def start(self, inp, game_map, disp, pl, levelMessage, bonuseMessage):
         player = pygame.transform.rotate(pl, 0)
@@ -40,9 +52,14 @@ class Cor:
         disp.blit(player, (self.x_pl * 90 + 660, self.y_pl * 90))
         self.conf = ""
         for line in a:
+
+            line.split(" ")
             self.check_st(game_map, self.x_pl, self.y_pl)
             if self.flag_bon:
                 self.bon_count += 1
+            if self.flag_col:
+                self.conf = "Slishkom mnogo"
+                break
             if self.synt_er == False:
                 self.conf = "Syntax error"
                 break
@@ -51,7 +68,6 @@ class Cor:
                 break
             else:
                 if line == "вниз":
-                    self.dey.append("вниз")
                     self.y_pl += 1
                     player = pygame.transform.rotate(pl, -90)
                 elif line == "вверх":
@@ -63,6 +79,32 @@ class Cor:
                 elif line == "вправо":
                     self.x_pl += 1
                     player = pygame.transform.rotate(pl, 0)
+                elif (line[0] == "повторять") and (line[2] == "раз"):
+                    i = int(line[1])
+                    for l in range(i):
+                        if line[3] == "вниз":
+                            self.y_pl += 1
+                            player = pygame.transform.rotate(pl, -90)
+                        elif line[3] == "вверх":
+                            self.y_pl -= 1
+                            player = pygame.transform.rotate(pl, +90)
+                        elif line[3] == "влево":
+                            self.x_pl -= 1
+                            player = pygame.transform.flip(pl, True, False)
+                        elif line[3] == "вправо":
+                            self.x_pl += 1
+                            player = pygame.transform.rotate(pl, 0)
+
+                if line == "вниз":
+                    player = pygame.transform.rotate(pl, -90)
+                elif line == "вверх":
+                    player = pygame.transform.rotate(pl, +90)
+                elif line == "влево":
+                    player = pygame.transform.flip(pl, True, False)
+                elif line == "вправо":
+                    player = pygame.transform.rotate(pl, 0)
+
+                pygame.draw.rect(disp, (72, 61, 139), pygame.Rect(3, 85, 588, 740), 7, 3)
                 disp.blit(bonuseMessage, (5, 1040))
                 disp.blit(levelMessage, (550, 1040))
                 self.gamm.game_map(game_map, disp)

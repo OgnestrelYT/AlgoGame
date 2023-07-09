@@ -17,6 +17,6 @@ class Saver:
         with open(self.lvl_file, "r") as file:
             self.from_file = file.read().split("\n")
             file.close()
-        for i in self.from_file:
-            self.from_file_end += i + "\n"
+        for d in self.from_file:
+            self.from_file_end += d + "\n"
         self.from_file_end = self.from_file_end[:-1]

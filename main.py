@@ -1,8 +1,8 @@
+#import kwargs as kwargs
 import pygame, sys, time, random, colorsys, math, pygame_gui, pygame_widgets
 from pygame_widgets.textbox import TextBox
 from pygame.locals import *
 from cor_check import *
-from inp_box import *
 from settings import *
 from saver import *
 from utils import checkCollisions
@@ -19,13 +19,13 @@ programIcon = pygame.image.load('data/gfx/icon.png')
 pygame.display.set_icon(programIcon)
 
 # get fonts
+font_text = pygame.font.Font('data/fonts/ofont.ru_Pixeloid Sans.ttf', 40)
 font = pygame.font.Font('data/fonts/font.otf', 100)
-font_small = pygame.font.Font('data/fonts/font.otf', 32)
+font_small = pygame.font.Font('data/fonts/font.otf', 50)
 font_20 = pygame.font.Font('data/fonts/font.otf', 20)
 
 # get some images
 cmd = pygame.image.load('data/gfx/cmd.png')
-retry_button = pygame.image.load('data/gfx/retry_button.png')
 start_button = pygame.image.load('data/gfx/start_button.png')
 stop_button = pygame.image.load('data/gfx/stop_button.png')
 logo = pygame.image.load('data/gfx/logo.png')
@@ -43,15 +43,26 @@ cor = Cor()
 set = Settings()
 sav = Saver()
 gamm = GameMap()
-inp = Input()
 
 # colors
 WHITE = (255, 255, 255)  # constant
 clock = pygame.time.Clock()
 
+light_button = "data/gfx/retry_button.png"
+night_button = "data/gfx/night_button.png"
+
+set.settings_check()
+
+# Buttons color
+if set.theme:
+    retry_button = pygame.image.load(night_button)
+else:
+    retry_button = pygame.image.load(light_button)
+
 
 framerate = 60
 ii = 1
+strcol = 15
 last_time = time.time()
 splashScreenTimer = 0
 settingScreen = False
@@ -92,15 +103,28 @@ if loading:
 
 # Start screen with buttons
 def title_screen():
-    def output():
-        global ii
-        textbox = TextBox(DISPLAY, 1, 100 + ii * 50, 658, 50, fontSize=40,
-                          borderColour=(0, 0, 0), textColour=(0, 200, 0),
-                          onSubmit=output, onTextChanged=edit, radius=10, borderThickness=0)
-        ii += 1
-
-    def edit():
-        sav.save_code(textbox.getText(), lvl)
+    def blit_text(surface, text, pos, font, color=pygame.Color("black")):
+        words = [word.split(" ") for word in text.splitlines()]
+        space = font.size(" ")[0]
+        max_width, max_height = surface.get_size()
+        i = 0
+        x, y = pos
+        for line in words:
+            for word in line:
+                if i < strcol:
+                    i += 1
+                    word_surface = font.render(word, 0, color)
+                    word_width, word_height = word_surface.get_size()
+                    if x + word_width >= max_width:
+                        x = pos[0]
+                        y += word_height
+                    surface.blit(word_surface, (x, y))
+                    x += word_width + space
+                    cor.flag_col = False
+                else:
+                    cor.flag_col = True
+            x = pos[0]
+            y += word_height
 
     settingScreen = False
     last_time = time.time()
@@ -137,6 +161,12 @@ def title_screen():
         else:
             DISPLAY.fill((255, 218, 185))
 
+        # Buttons color
+        if set.theme:
+            retry_button = pygame.image.load(night_button)
+        else:
+            retry_button = pygame.image.load(light_button)
+
         # Log on on screen
         DISPLAY.blit(logo, (DISPLAY.get_width() / 2 - logo.get_width() / 2,
                             DISPLAY.get_height() / 2 - 200 - logo.get_height() / 2 + math.sin(time.time() * 5) * 5 - 25))
@@ -156,11 +186,14 @@ def title_screen():
         exitMessage = font_small.render("EXIT", True, (0, 0, 0))
 
         # Rendering title of start button
-        DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2, bStart + 4))
+        DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2, bStart - 30 +
+                                    retry_button.get_height() / 2))
         # Rendering title of settings button
-        DISPLAY.blit(settingsMessage, (DISPLAY.get_width() / 2 - settingsMessage.get_width() / 2, bSettings + 4))
+        DISPLAY.blit(settingsMessage, (DISPLAY.get_width() / 2 - settingsMessage.get_width() / 2, bSettings - 30 +
+                                    retry_button.get_height() / 2))
         # Rendering title of exit button
-        DISPLAY.blit(exitMessage, (DISPLAY.get_width() / 2 - exitMessage.get_width() / 2, bExit + 4))
+        DISPLAY.blit(exitMessage, (DISPLAY.get_width() / 2 - exitMessage.get_width() / 2, bExit - 30 +
+                                    retry_button.get_height() / 2))
 
         # Button to play function
         if (clicked and checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
@@ -216,6 +249,12 @@ def title_screen():
         else:
             DISPLAY.fill((231, 205, 183))
 
+        # Buttons color
+        if set.theme:
+            retry_button = pygame.image.load(night_button)
+        else:
+            retry_button = pygame.image.load(light_button)
+
 # ----------------------------------------------------------------------------------------------------------------------
 
         # Theme massage
@@ -233,12 +272,14 @@ def title_screen():
         # Rendering theme on button txt
         DISPLAY.blit(themeMessageOnB, (DISPLAY.get_width() / 2 - retry_button.get_width() / 2 +
                                        themeMessageOnB.get_width() / 2,
-                                       bTheme))
+                                       bTheme - 30 +
+                                       retry_button.get_height() / 2))
 
         # Rendering theme before button txt
         DISPLAY.blit(themeMessageBB, (DISPLAY.get_width() / 2 - retry_button.get_width() / 2 -
                                        themeMessageBB.get_width() - 5,
-                                       bTheme))
+                                       bTheme - 30 +
+                                       retry_button.get_height() / 2))
 
         # Button to switch theme
         if (clicked and (checkCollisions(mouseX, mouseY, 3, 3, DISPLAY.get_width() / 2 - retry_button.get_width() / 2,
@@ -287,13 +328,6 @@ def title_screen():
             DISPLAY.fill((105, 105, 105))
         else:
             DISPLAY.fill((231, 205, 183))
-
-        # Start massage
-        startMessage = font_small.render("SOON...", True, (171, 145, 123))
-
-        # Rendering start massage
-        DISPLAY.blit(startMessage, (DISPLAY.get_width() / 2 - startMessage.get_width() / 2,
-                                    DISPLAY.get_height() / 2 - startMessage.get_height() / 2))
 
         for i in range(1, 6):
             # Title of button
@@ -360,10 +394,6 @@ def title_screen():
     sav.enter_code(lvl)
     print(sav.from_file_end)
 
-    textbox = TextBox(DISPLAY, 1, 100, 658, 50, fontSize=40,
-                      borderColour=(0, 0, 0), textColour=(0, 200, 0),
-                      onSubmit=output, onTextChanged=edit, radius=10, borderThickness=0)
-
     while True:
         dt = time.time() - last_time
         dt *= 60
@@ -377,6 +407,11 @@ def title_screen():
         keys = pygame.key.get_pressed()
         events = pygame.event.get()
 
+        sav.enter_code(lvl)
+        print(sav.from_file_end)
+        text = sav.from_file_end
+        print(text[:-1])
+
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 clicked = True
@@ -386,6 +421,10 @@ def title_screen():
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     title_screen()
+                elif event.key == K_BACKSPACE:
+                    text = text[:-1]
+                elif cor.flag_col == False:
+                    text += event.unicode
 
         set.settings_check()
 
@@ -395,9 +434,7 @@ def title_screen():
         else:
             DISPLAY.fill((152, 251, 152))
 
-        sav.enter_code(i)
-        print(sav.from_file_end)
-        text = sav.from_file_end
+        sav.save_code(text, lvl)
 
         tile_rect = []
 
@@ -456,12 +493,16 @@ def title_screen():
         string1 = font_small.render(string_no_1, True, (0, 0, 0))
         string2 = font_small.render(string_no_2, True, (0, 0, 0))
 
-        DISPLAY.blit(bonuseMessage, (5, 1040))
-        DISPLAY.blit(levelMessage, (550, 1040))
-        DISPLAY.blit(confMessage, (5, 20))
-        DISPLAY.blit(string1, (10, 400))
+        pygame.draw.rect(DISPLAY, (72, 61, 139), pygame.Rect(3, 85, 588, 740), 7, 3)
 
-        pygame_widgets.update(events)
+        DISPLAY.blit(bonuseMessage, (5, 1025))
+        DISPLAY.blit(levelMessage, (515, 1025))
+        DISPLAY.blit(confMessage, (5, 20))
+        DISPLAY.blit(string1, (5, 850))
+        DISPLAY.blit(string2, (10, 850))
+
+        blit_text(DISPLAY, text, (15, 80), font_text)
+
         pygame.display.update()
 
 

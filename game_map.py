@@ -4,7 +4,22 @@ import pygame
 class GameMap():
     def __init__(self):
         self.grass = pygame.image.load('data/gfx/grass.png')
-        self.stone = pygame.image.load('data/gfx/stone.png')
+
+        self.stone_cor_left_top = pygame.image.load('data/gfx/stone_cor_left_top.png')
+        self.stone_cor_right_top = pygame.image.load('data/gfx/stone_cor_right_top.png')
+        self.stone_cor_left_bottom = pygame.image.load('data/gfx/stone_cor_left_bottom.png')
+        self.stone_cor_right_bottom = pygame.image.load('data/gfx/stone_cor_right_bottom.png')
+        self.stone_sr_top = pygame.image.load('data/gfx/stone_sr_top.png')
+        self.stone_sr_bottom = pygame.image.load('data/gfx/stone_sr_bottom.png')
+        self.stone_sr_left = pygame.image.load('data/gfx/stone_sr_left.png')
+        self.stone_sr_right = pygame.image.load('data/gfx/stone_sr_right.png')
+        self.stone_all = pygame.image.load('data/gfx/stone_all.png')
+        self.stone_vogn_left_top = pygame.image.load('data/gfx/stone_vogn_left_top.png')
+        self.stone_vogn_right_top = pygame.image.load('data/gfx/stone_vogn_right_top.png')
+        self.stone_vogn_left_bottom = pygame.image.load('data/gfx/stone_vogn_left_bottom.png')
+        self.stone_vogn_right_bottom = pygame.image.load('data/gfx/stone_vogn_right_bottom.png')
+        #self.stone_center = pygame.image.load('data/gfx/stone_center.png')
+
         self.top_left_riv = pygame.image.load('data/gfx/top_left.png')
         self.top_right_riv = pygame.image.load('data/gfx/top_right.png')
         self.bottom_left_riv = pygame.image.load('data/gfx/bottom_left.png')
@@ -22,25 +37,53 @@ class GameMap():
             for tile in layer:
                 if tile == '01':  # Grass
                     DISPLAY.blit(self.grass, (x * 90 + 660, y * 90))
-                if tile == '02':  # Stone
-                    DISPLAY.blit(self.stone, (x * 90 + 660, y * 90))
-                if tile == '03':  # Tree
+
+                elif tile == '20':  # Stone
+                    DISPLAY.blit(self.stone_cor_left_top, (x * 90 + 660, y * 90))
+                elif tile == '21':  # Stone
+                    DISPLAY.blit(self.stone_cor_right_top, (x * 90 + 660, y * 90))
+                elif tile == '22':  # Stone
+                    DISPLAY.blit(self.stone_cor_left_bottom, (x * 90 + 660, y * 90))
+                elif tile == '23':  # Stone
+                    DISPLAY.blit(self.stone_cor_right_bottom, (x * 90 + 660, y * 90))
+                elif tile == '24':  # Stone
+                    DISPLAY.blit(self.stone_sr_top, (x * 90 + 660, y * 90))
+                elif tile == '25':  # Stone
+                    DISPLAY.blit(self.stone_sr_bottom, (x * 90 + 660, y * 90))
+                elif tile == '26':  # Stone
+                    DISPLAY.blit(self.stone_sr_left, (x * 90 + 660, y * 90))
+                elif tile == '27':  # Stone
+                    DISPLAY.blit(self.stone_sr_right, (x * 90 + 660, y * 90))
+                elif tile == '28':  # Stone
+                    DISPLAY.blit(self.stone_all, (x * 90 + 660, y * 90))
+                elif tile == '29':  # Stone
+                    DISPLAY.blit(self.stone_vogn_left_top, (x * 90 + 660, y * 90))
+                elif tile == '30':  # Stone
+                    DISPLAY.blit(self.stone_vogn_right_top, (x * 90 + 660, y * 90))
+                elif tile == '31':  # Stone
+                    DISPLAY.blit(self.stone_vogn_left_bottom, (x * 90 + 660, y * 90))
+                elif tile == '32':  # Stone
+                    DISPLAY.blit(self.stone_vogn_right_bottom, (x * 90 + 660, y * 90))
+                elif tile == '33':  # Stone
+                    DISPLAY.blit(self.stone_center, (x * 90 + 660, y * 90))
+
+                elif tile == '03':  # Tree
                     DISPLAY.blit(self.tree, (x * 90 + 660, y * 90))
-                if tile == '04':  # Bonuse
+                elif tile == '04':  # Bonuse
                     DISPLAY.blit(self.bonuse, (x * 90 + 660, y * 90))
-                if tile == '05':  # Finish
+                elif tile == '05':  # Finish
                     DISPLAY.blit(self.finish, (x * 90 + 660, y * 90))
-                if tile == '06':  # Gor river
+                elif tile == '06':  # Gor river
                     DISPLAY.blit(self.goriz_riv, (x * 90 + 660, y * 90))
-                if tile == '07':  # Vert river
+                elif tile == '07':  # Vert river
                     DISPLAY.blit(self.vert_riv, (x * 90 + 660, y * 90))
-                if tile == '08':  # Top left river
+                elif tile == '08':  # Top left river
                     DISPLAY.blit(self.top_left_riv, (x * 90 + 660, y * 90))
-                if tile == '09':  # Top right river
+                elif tile == '09':  # Top right river
                     DISPLAY.blit(self.top_right_riv, (x * 90 + 660, y * 90))
-                if tile == '10':  # Bottom left river
+                elif tile == '10':  # Bottom left river
                     DISPLAY.blit(self.bottom_left_riv, (x * 90 + 660, y * 90))
-                if tile == '11':  # Bottom right river
+                elif tile == '11':  # Bottom right river
                     DISPLAY.blit(self.bottom_right_riv, (x * 90 + 660, y * 90))
                 x += 1
             y += 1
