@@ -1,11 +1,12 @@
-import sys, time, math
-
+import time
+import math
 import pygame.key
 from pygame.locals import *
 from game_map import GameMap
 from cor_check import *
 from settings import *
 from saver import *
+from buttons import *
 from utils import checkCollisions
 
 loading = True
@@ -19,7 +20,7 @@ pygame.display.set_caption('Algogame')
 programIcon = pygame.image.load('data/gfx/icon.png')
 pygame.display.set_icon(programIcon)
 
-# get fonts
+# Get fonts
 font_text = pygame.font.Font('data/fonts/ofont.ru_Pixeloid Sans.ttf', 40)
 font = pygame.font.Font('data/fonts/font.otf', 100)
 font_small = pygame.font.Font('data/fonts/font.otf', 50)
@@ -28,7 +29,7 @@ font_rus = pygame.font.Font("data/fonts/rusf.ttf", 40)
 font_rus_small = pygame.font.Font("data/fonts/rusf.ttf", 35)
 font_ton = pygame.font.Font('data/fonts/ton.ttf', 35)
 
-# get some images
+# Get some images
 cmd = pygame.image.load('data/gfx/cmd.png')
 start_button = pygame.image.load('data/gfx/start_button.png')
 stop_button = pygame.image.load('data/gfx/stop_button.png')
@@ -41,11 +42,13 @@ cor = Cor()
 set = Settings()
 sav = Saver()
 gamm = GameMap()
+but = Buttons()
 
-# colors
+# Colors
 WHITE = (255, 255, 255)  # constantнет
 clock = pygame.time.Clock()
 
+# Get buttons
 light_button = "data/gfx/light_button.png"
 night_button = "data/gfx/night_button.png"
 
@@ -57,6 +60,8 @@ if set.theme:
 else:
     retry_button = pygame.image.load(light_button)
 
+bw = retry_button.get_width()
+bh = retry_button.get_height()
 
 framerate = 60
 ii = 1
@@ -65,7 +70,9 @@ last_time = time.time()
 splashScreenTimer = 0
 settingScreen = False
 
-#Loading screen
+# ----------------------------------------------------------------------------------------------------------------------
+
+# Loading screen
 if loading:
     while splashScreenTimer < 100:
         dt = time.time() - last_time
@@ -97,6 +104,7 @@ if loading:
         pygame.display.update()
         pygame.time.delay(10)
 
+# ----------------------------------------------------------------------------------------------------------------------
 
 # Start screen with buttons
 def title_screen():
@@ -192,6 +200,7 @@ def title_screen():
                                         bStart, retry_button.get_width(), retry_button.get_height())):
             clicked = False
             titleScreen = False
+            SelectorOfLvls = True
 
         # Button to settings function
         if (clicked and checkCollisions(mouseX, mouseY, 3, 3,
@@ -209,6 +218,26 @@ def title_screen():
 
         pygame.display.update()
         pygame.time.delay(10)
+
+# ----------------------------------------------------------------------------------------------------------------------
+    SelectorOfLvls = False
+    while SelectorOfLvls:
+        dt = time.time() - last_time
+        dt *= 60
+        last_time = time.time()
+        mouseX, mouseY = pygame.mouse.get_pos()
+        clicked = False
+        keys = pygame.key.get_pressed()
+
+        # Click checking
+        for event in pygame.event.get():
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                clicked = True
+            if event.type == QUIT:
+                pygame.quit()
+                sys.exit()
+
+# ----------------------------------------------------------------------------------------------------------------------
 
     # Settings screen
     bTheme = 500
@@ -246,8 +275,6 @@ def title_screen():
         else:
             retry_button = pygame.image.load(light_button)
 
-# ----------------------------------------------------------------------------------------------------------------------
-
         # Theme massage
         if set.theme:
             themeMessageOnB = font_rus_small.render("Поменять на светлую", True, (0, 0, 0))
@@ -275,19 +302,72 @@ def title_screen():
                 set.edit(0, "night theme")
             print("switch theme")
 
-# ----------------------------------------------------------------------------------------------------------------------
-
-
         pygame.display.update()
         pygame.time.delay(10)
 
+        # ----------------------------------------------------------------------------------------------------------------------
 
-    # Levels selector screen
+        # Levels selector screen (Not my)
+        aling = 350
+        fromScreen = 100
+        lvlSelectorScreenNotMy = False
+        while lvlSelectorScreenNotMy:
+            global lvl
+            dt = time.time() - last_time
+            dt *= 60
+            last_time = time.time()
+            mouseX, mouseY = pygame.mouse.get_pos()
+            clicked = False
+
+            for event in pygame.event.get():
+                if event.type == QUIT:
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    clicked = True
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        title_screen()
+
+            set.settings_check()
+
+            # Filling bg
+            if set.theme:
+                DISPLAY.fill((105, 105, 105))
+            else:
+                DISPLAY.fill((231, 205, 183))
+
+            for i in range(1, 6):
+                # Title of button
+                Message = font_small.render(str(i)+ " уровень", True, (0, 0, 0))
+                # Button
+                DISPLAY.blit(retry_button, (
+                DISPLAY.get_width() / 2 + (aling * i - aling) - 2 * aling - retry_button.get_width() / 2,
+                DISPLAY.get_height() / 2 - retry_button.get_height() / 2))
+                # Rendering title of button
+                DISPLAY.blit(Message, (DISPLAY.get_width() / 2 + (aling * i - aling - 6) - 2 * aling,
+                                       DISPLAY.get_height() / 2 - Message.get_height() / 2))
+
+                if (clicked and checkCollisions(mouseX, mouseY, 3, 3,
+                                                DISPLAY.get_width() / 2 + (
+                                                        aling * i - aling) - 2 * aling - retry_button.get_width() / 2,
+                                                DISPLAY.get_height() / 2 - retry_button.get_height() / 2,
+                                                retry_button.get_width(), retry_button.get_height())):
+                    clicked = False
+                    lvlSelectorScreen = False
+                    print(i)
+                    lvl = i
+
+            pygame.display.update()
+            pygame.time.delay(10)
+
+# ----------------------------------------------------------------------------------------------------------------------
+
+    # Levels selector screen (My)
     aling = 350
     fromScreen = 100
-    lvlSelectorScreen = True
-    while lvlSelectorScreen:
-        global lvl
+    lvlSelectorScreenMy = False
+    while lvlSelectorScreenMy:
         dt = time.time() - last_time
         dt *= 60
         last_time = time.time()
@@ -333,6 +413,9 @@ def title_screen():
         pygame.display.update()
         pygame.time.delay(10)
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+    # Map loader
     game_map = []
 
     lvl_file = "data/lvls/" + str(lvl) + ".txt"
@@ -386,6 +469,9 @@ def title_screen():
     BSPR = False
     i = 0
 
+# ----------------------------------------------------------------------------------------------------------------------
+
+    # Game screen
     while True:
         dt = time.time() - last_time
         dt *= 60
@@ -407,7 +493,6 @@ def title_screen():
         try:
             st = text.split("\n")
             for fgh in st:
-                print("                              asd            " + fgh)
                 if len(fgh) < 25:
                     leng = True
                 else:
@@ -415,8 +500,6 @@ def title_screen():
                     break
         except:
             pass
-        print("")
-
 
         for event in events:
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -552,5 +635,5 @@ def title_screen():
 
         pygame.display.update()
 
-
-title_screen()
+if __name__ == "__main__":
+    title_screen()
