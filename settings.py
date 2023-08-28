@@ -1,3 +1,4 @@
+import pygame
 
 class Settings:
     def __init__(self):
@@ -9,15 +10,22 @@ class Settings:
         self.edited_compl = ""
         self.theme = True
         self.volume = True
+        self.light_button = "data/gfx/light_button.png"
+        self.night_button = "data/gfx/night_button.png"
+        self.retry_button = pygame.image.load(self.night_button)
 
-    def settings_check(self):
+    def settings_check(self, DISPLAY):
         with open(self.settings_file) as file:
             a = file.read().split("\n")
             for tip in a:
                 if tip == "night theme":
                     self.theme = True
+                    DISPLAY.fill((105, 105, 105))
+                    self.retry_button = pygame.image.load(self.night_button)
                 elif tip == "light theme":
                     self.theme = False
+                    DISPLAY.fill((255, 218, 185))
+                    self.retry_button = pygame.image.load(self.light_button)
 
                 elif tip == "volume on":
                     self.volume = True
